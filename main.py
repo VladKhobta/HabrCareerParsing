@@ -20,6 +20,7 @@ class HabrParser:
         self.urls = urls
         self.parsed_urls = []
 
+    # one page parsing function
     def parse(self, url):
         try:
             r = requests.get(url, headers=headers, timeout=3)
@@ -44,8 +45,9 @@ class HabrParser:
 
         return url
 
+    # all url pages multiprocessing parsing function
     def run(self):
-        with Pool() as p:
+        with Pool() as p:  # default os.cpu_count() for my devise -- is 8
             self.parsed_urls = p.map(self.parse, self.urls)
         return self.parsed_urls
 
@@ -64,16 +66,17 @@ def get_urls_list(filename):
 if __name__ == "__main__":
 
     urls_list = get_urls_list(CSV_NAME)
-
     parser = HabrParser(urls_list)
 
     print(START_TIME)
 
-    passed_urls = parser.run()
+    passed_urls = parser.run()  # parsing and getting all successfully parsed urls
 
+    # printing script final data
     print('End time: {}'.format(time.time() - START_TIME))
-    passed_count = 0
     print('All urls count:', len(passed_urls))
+
+    passed_count = 0
     with open("passed_urls.txt", "w") as file:
         for passed_url in passed_urls:
             if passed_url:
