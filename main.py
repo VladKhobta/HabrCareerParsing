@@ -3,6 +3,7 @@ import requests
 import time
 from multiprocessing import Pool
 from requests.exceptions import ConnectionError, Timeout
+import os
 
 
 headers = {
@@ -32,6 +33,7 @@ class HabrParser:
             return
 
         if r.status_code == 404:
+            print('Not Found')
             return url
 
         soup = BeautifulSoup(r.text, 'lxml')
@@ -50,6 +52,21 @@ class HabrParser:
         with Pool() as p:  # default os.cpu_count() for my devise -- is 8
             self.parsed_urls = p.map(self.parse, self.urls)
         return self.parsed_urls
+
+
+    def check_parsed(self):
+        checked_urls = []
+        for root, dirs, files in os.walk(PATH_FOR_FILES):
+            for filename in files:
+                with open(root + filename, 'rb') as f:
+                    url = f.readline()
+                    checked_urls.append(url.strip())
+
+        with open("checked_urls.txt", "w") as f:
+            for checked_url in checked_urls:
+                f.write(checked_url.decode("utf-8") + "\n")
+
+        return checked_urls
 
 
 def get_urls_list(filename):
